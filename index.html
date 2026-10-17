@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090d13" />
+  <meta name="description" content="Aminoid Spot — live Binance Spot crypto dashboard with USDⓈ-M Futures funding and open-interest confirmation." />
+  <title>Aminoid Spot | Spot Signals with Futures Context</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090d13'/%3E%3Cpath d='M10 45 24 17l9 19 7-13 14 22' fill='none' stroke='%234fe0b3' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Aminoid Spot home">
+        <span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 28 14 10l7 15 5-10 9 13" /></svg></span>
+        <span><strong>AMINOID</strong><small>SPOT INTELLIGENCE</small></span>
+      </a>
+      <div class="side-rule"></div>
+      <div class="side-section-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Primary navigation">
+        <a class="nav-item active" href="#overview"><span class="nav-icon">▦</span> Market Overview</a>
+        <a class="nav-item" href="#signals"><span class="nav-icon">◈</span> Signals <span id="signal-count-badge" class="nav-count">0</span></a>
+        <a class="nav-item" href="#layers"><span class="nav-icon">⌘</span> Indicator Layers</a>
+      </nav>
+      <div class="watchlist-head">
+        <span>SPOT WATCHLIST</span>
+        <span id="watchlist-coverage" class="muted-mini">0 / 15</span>
+      </div>
+      <div id="watchlist" class="watchlist-list" aria-label="Crypto watchlist">
+        <div class="placeholder-row">Loading Binance Spot pairs…</div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="data-source-mark"><span class="source-dot"></span><span><b>Binance Spot</b><small>Public market data</small></span></div>
+        <p>Browser-side calculations<br />No database · No n8n dependency</p>
+      </div>
+    </aside>
+
+    <main class="main-content" id="top">
+      <header class="topbar">
+        <div class="crumbs"><span>MARKETS</span><span class="crumb-slash">/</span><strong>CRYPTO SPOT</strong></div>
+        <div class="topbar-actions">
+          <div class="connection-pill"><span id="connection-dot" class="source-dot amber"></span><span id="connection-label">Connecting to Binance</span></div>
+          <button id="refresh-button" class="icon-button" title="Reload market history" aria-label="Reload market history">↻</button>
+          <div class="utc-clock"><span class="clock-label">UTC</span><strong id="utc-clock">--:--:--</strong></div>
+        </div>
+      </header>
+
+      <section class="page-heading" id="overview">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-line"></span> MARKET INTELLIGENCE / 01</div>
+          <h1>Spot Market <em>Overview</em></h1>
+          <p class="subheading">Live Binance spot data. Signals are scored from confirmed candles with a browser-local cooldown.</p>
+        </div>
+        <div class="heading-meta">
+          <div class="meta-label">SIGNAL WINDOW</div>
+          <strong>Today · 00:00–23:59 UTC</strong>
+          <small id="utc-date">UTC calendar day</small>
+        </div>
+      </section>
+
+      <section class="market-strip" aria-label="Market status">
+        <div class="market-stat">
+          <span class="stat-label">SELECTED ASSET</span>
+          <div class="asset-inline"><span id="selected-asset-icon" class="coin-icon btc">B</span><strong id="selected-asset-name">BTC / USDT</strong></div>
+          <span id="selected-asset-type" class="stat-foot">BINANCE SPOT</span>
+        </div>
+        <div class="market-stat">
+          <span class="stat-label">LAST PRICE <span class="live-inline-dot"></span></span>
+          <div id="selected-price" class="stat-value">—</div>
+          <span id="selected-change" class="stat-foot neutral-text">Change 24h —</span>
+        </div>
+        <div class="market-stat">
+          <span class="stat-label">MODEL SCORE</span>
+          <div class="stat-with-unit"><strong id="selected-score" class="stat-value">—</strong><span>/ 100</span></div>
+          <span id="selected-score-label" class="stat-foot">Waiting for candles</span>
+        </div>
+        <div class="market-stat">
+          <span class="stat-label">SIGNAL BIAS</span>
+          <div id="selected-bias" class="bias-value">NEUTRAL</div>
+          <span id="selected-regime" class="stat-foot">Regime —</span>
+        </div>
+        <div class="market-stat last-stat">
+          <span class="stat-label">LAYER PARTICIPATION</span>
+          <div class="stat-with-unit"><strong id="selected-layers" class="stat-value">—</strong><span>/ 5</span></div>
+          <span id="selected-gate" class="stat-foot">Gate not evaluated</span>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="primary-column">
+          <section class="panel chart-panel">
+            <div class="panel-header chart-header">
+              <div><div class="section-kicker">PRICE ACTION</div><h2 id="chart-title">BTC / USDT <span>Spot</span></h2></div>
+              <div class="chart-tools">
+                <div class="segmented" id="timeframe-control" role="group" aria-label="Chart timeframe">
+                  <button class="selected" data-timeframe="15m">15m</button><button data-timeframe="1h">1H</button><button data-timeframe="4h">4H</button>
+                </div>
+                <span class="chart-live"><i></i> LIVE</span>
+              </div>
+            </div>
+            <div class="chart-legend"><span><i class="legend-candle green"></i> Bullish</span><span><i class="legend-candle red"></i> Bearish</span><span id="chart-last-close">Confirmed candles only</span></div>
+            <div class="chart-wrap"><canvas id="price-chart" aria-label="Candlestick chart"></canvas><div id="chart-empty" class="chart-empty">Waiting for spot candles…</div></div>
+            <div class="chart-footer"><span id="chart-period">—</span><span>Data from Binance Spot REST + WebSocket</span></div>
+          </section>
+
+          <section class="panel layer-panel" id="layers">
+            <div class="panel-header">
+              <div><div class="section-kicker">SIGNAL COMPOSITION</div><h2>Five-layer <em>indicator board</em></h2></div>
+              <span class="tiny-tag">SCORED / 100</span>
+            </div>
+            <p class="panel-description">Each layer shows the percentage of available directional indicators leaning bullish or bearish. Neutral indicators remain in the denominator; missing data is excluded.</p>
+            <div id="layer-score-grid" class="layer-score-grid">
+              <div class="empty-panel">Indicator layer results appear after enough candle history loads.</div>
+            </div>
+          </section>
+
+          <section class="panel indicator-panel">
+            <div class="panel-header">
+              <div><div class="section-kicker">EXECUTABLE STRATEGY</div><h2>Indicator <em>readout</em></h2></div>
+              <span id="indicator-count" class="tiny-tag">21 STRATEGY VOTES*</span>
+            </div>
+            <div id="indicator-list" class="indicator-list"><div class="empty-panel">Loading indicator values…</div></div>
+            <p class="micro-note">*The 21 scored strategy factors comprise 18 directional votes and three confirmation factors. Relative strength versus BTC is an additional +1 raw-point scoring factor; BTC dominance is an external veto. ADX, ATR expansion and qualifying open-interest increases are non-directional confirmations; Spot order-book imbalance and spot-volume strength are informational only.</p>
+          </section>
+        </div>
+
+        <div class="secondary-column">
+          <section class="panel score-panel">
+            <div class="panel-header compact-heading"><div><div class="section-kicker">SCORING ENGINE</div><h2>Signal <em>decision</em></h2></div><span class="engine-led"><i></i> RULE BASED</span></div>
+            <div class="score-dial-wrap"><div id="score-dial" class="score-dial"><div class="score-dial-inner"><strong id="dial-score">—</strong><span>OUT OF 100</span></div></div></div>
+            <div class="direction-split"><div><span class="split-label"><i class="direction-dot long"></i> LONG SCORE</span><strong id="long-score">—</strong></div><div><span class="split-label"><i class="direction-dot short"></i> SHORT SCORE</span><strong id="short-score">—</strong></div></div>
+            <div class="score-meter"><div id="long-meter" class="meter-long"></div><div id="short-meter" class="meter-short"></div></div>
+            <div id="signal-result" class="signal-result neutral"><span class="result-icon">◌</span><div><strong>NO ACTIVE SIGNAL</strong><small>Waiting for the full gate to pass.</small></div></div>
+            <div class="gate-checks" id="gate-checks">
+              <div class="gate-check"><span>Score ≥ 3.3 / 11.5</span><b class="gate-wait">—</b></div>
+              <div class="gate-check"><span>Trend or reversal route</span><b class="gate-wait">—</b></div>
+              <div class="gate-check"><span>At least 3 layers</span><b class="gate-wait">—</b></div>
+              <div class="gate-check"><span>Disagreement ≤ 3</span><b class="gate-wait">—</b></div>
+            </div>
+            <div class="score-meta-grid"><div><span>STRENGTH TIER</span><strong id="strength-tier">—</strong></div><div><span>CONFIDENCE*</span><strong id="confidence">—</strong></div><div><span>ROUTE</span><strong id="gate-route">—</strong></div><div><span>DISAGREEMENT</span><strong id="disagreement">—</strong></div></div>
+            <p class="micro-note">*Confidence is the workflow's deterministic score-derived estimate, not a measured probability of profit.</p>
+          </section>
+
+          <section class="panel targets-panel">
+            <div class="panel-header compact-heading"><div><div class="section-kicker">RISK FRAMEWORK</div><h2>Spot <em>levels</em></h2></div><span class="tiny-tag">ATR + S/R</span></div>
+            <div class="target-price"><span>REFERENCE PRICE</span><strong id="target-reference">—</strong></div>
+            <div class="target-list">
+              <div class="target-row"><span><i class="target-dot entry"></i> Entry window</span><strong id="target-entry">—</strong></div>
+              <div class="target-row"><span><i class="target-dot stop"></i> Stop level</span><strong id="target-stop">—</strong></div>
+              <div class="target-row"><span><i class="target-dot tp"></i> Take profit 1</span><strong id="target-tp1">—</strong></div>
+              <div class="target-row"><span><i class="target-dot tp2"></i> Take profit 2</span><strong id="target-tp2">—</strong></div>
+            </div>
+            <div class="target-foot"><span>Risk/reward to TP1</span><strong id="target-rr">—</strong></div>
+          </section>
+
+          <section class="panel context-panel">
+            <div class="panel-header compact-heading"><div><div class="section-kicker">MARKET CONTEXT</div><h2>Macro <em>filters</em></h2></div></div>
+            <div class="context-row"><div><span>RS vs BTC · 12H</span><small>Outperformance baseline</small></div><strong id="context-rs">—</strong></div>
+            <div class="context-row"><div><span>BTC dominance change</span><small>External global context · ~20m</small></div><strong id="context-btcd">—</strong></div>
+            <div class="context-row"><div><span>BTC 2H shock filter</span><small>Absolute move threshold: 4%</small></div><strong id="context-shock">—</strong></div>
+            <div class="context-row"><div><span>Spot order-book imbalance</span><small>Bid vs ask quantity at best level · informational only</small></div><strong id="context-book">—</strong></div>
+            <div class="context-row"><div><span>Futures microstructure</span><small>Funding + OI confirmation for selected spot symbol</small></div><strong id="context-futures">—</strong></div>
+            <p class="micro-note">Candles and directional indicators use Binance Spot. Layer 5 uses public USDⓈ-M Futures funding and open interest for the matching symbol. If futures data is missing, that input is unavailable and no zero value is fabricated.</p>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel signals-panel" id="signals">
+        <div class="panel-header signal-list-header">
+          <div><div class="section-kicker">SESSION OUTPUT</div><h2>Signals generated <em>today</em></h2><p class="panel-description">Only signals from 00:00 UTC onward appear here. Memory is local to this browser; clearing site data resets its cooldowns.</p></div>
+          <div class="signal-summary"><strong id="today-signal-count">0</strong><span>VISIBLE TODAY</span></div>
+        </div>
+        <div class="table-scroll">
+          <table class="signals-table">
+            <thead><tr><th>TIME (UTC)</th><th>PAIR</th><th>BIAS</th><th>SCORE</th><th>TIER</th><th>CONFIDENCE</th><th>ROUTE</th><th>REFERENCE PRICE</th></tr></thead>
+            <tbody id="signals-table-body"><tr><td colspan="8" class="table-empty">No signal has passed all gates today. The table resets at 00:00 UTC.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <div><strong>AMINOID SPOT</strong><span>Rule-based market intelligence · Not financial advice</span></div>
+        <div class="footer-status"><span class="source-dot"></span><span id="last-update">Waiting for market data</span></div>
+      </footer>
+      <div id="toast-region" class="toast-region" aria-live="polite"></div>
+    </main>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
